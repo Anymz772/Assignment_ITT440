@@ -1,0 +1,78 @@
+1 #include <stdlib.h>
+2 #include <unistd.h>
+3 #include <stdio.h>
+4 #include <sys/types.h>
+5 #include <sys/wait.h>
+6 #include <errno.h>
+7 #include <signal.h>
+8
+9
+10 #define_MAX_LENGTH 4
+11 #define_MAX_WAIT_INTERVAL 2
+12
+13 void getMAX (char max[MAX LENGTH + 1){
+14 srand (getpid() + getppid());
+15
+16 max[0] = 49 + rand () % 7;
+17
+18 for (int i = 1; i < MAX_LENGTH; i++){
+19 max [i] = 48 + rand () % 7;
+20 }
+21
+22 max [MAX LENGTH] = '\0';
+23 }
+24
+25 void sigint_handler (int sig);
+26 int main()
+27 {
+28 signal (SIGINT, sigint_handler);
+29
+30 while (1) {
+31 int pipefds [2];
+32 char max[MAX_LENGTH + 1];
+33 char buffer [MAX_LENGTH + 1];
+34 char string [100];
+35 char s [100];
+36
+37 pipe(pipefds) ;
+38 pid_t pid = fork() ;
+39
+40 if (signal(SIGINT,sigint_handler) == SIG ERR) {
+41 perror ("signal");
+42 exit(1);
+43 }
+44
+45 if(pid == 0){
+46 getMAX(max);
+47 close(pipefds [0]);
+48 write(pipefds[1], max, MAX_LENGTH + 1) ;
+49
+50 printf ("Please enter your Name: \n");
+51 fgets (string, 100, stdin);
+52 printf("This is your Name : %s", string);
+53 printf("Generating maximum in parent and sending to child... \n");
+54
+55 sleep (MAX_WAIT_INTERVAL);
+56
+57 exit(EXIT_SUCCESS);
+58 }
+59
+60 if(pid > 0){
+61 wait(NULL);
+62
+63 close (pipefds [1]);
+64 read(pipefds[0], buffer, MAX_LENGTH + 1) ;
+65
+66 printf("Child received '%s' from parent....\n\n", buffer);
+67 }
+68 }
+69
+70 return EXIT_ SUCCESS;
+71 }
+72
+73 void sigint_handler (int sig){
+74 printf("***Process was interrupted!***\n");
+75 exit(1);
+76
+77 }
+78
